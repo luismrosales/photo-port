@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { validateEmail } from "../../utils/helpers";
 
 function ContactForm() {
   const [formState, setFormState] = useState({
@@ -7,14 +8,35 @@ function ContactForm() {
     message: "",
   });
   const { name, email, message } = formState;
-  function handleChange(e) {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
-  }
+  const [errorMessage, setErrorMessage] = useState("");
 
-  function handleSubmit(e) {
+  const handleChange = (e) => {
+    if (e.target.name === "email") {
+      const isValid = validateEmail(e.target.value);
+      console.log(isValid);
+      // isValid conditional statement
+      if (!isValid) {
+        setErrorMessage("Your email is invalid.");
+      } else {
+        setErrorMessage("");
+      }
+    } else {
+      if (!e.target.value.length) {
+        setErrorMessage(`${e.target.name} is required.`);
+      } else {
+        setErrorMessage("");
+      }
+    }
+
+    if (!errorMessage) {
+      setFormState({ ...formState, [e.target.name]: e.target.value });
+    }
+  };
+
+  const handleSubmit = (e) => {
     e.preventDefault();
     console.log(formState);
-  }
+  };
 
   return (
     <section>
@@ -26,7 +48,7 @@ function ContactForm() {
             type="text"
             name="name"
             defaultValue={name}
-            onChange={handleChange}
+            onBlur={handleChange}
           />
         </div>
         <div>
@@ -35,7 +57,7 @@ function ContactForm() {
             type="email"
             name="email"
             defaultValue={email}
-            onChange={handleChange}
+            onBlur={handleChange}
           />
         </div>
         <div>
@@ -44,8 +66,13 @@ function ContactForm() {
             name="message"
             rows="5"
             defaultValue={message}
-            onChange={handleChange}
+            onBlur={handleChange}
           ></textarea>
+          {errorMessage && (
+            <div>
+              <p className="error-text">{errorMessage}</p>
+            </div>
+          )}
         </div>
         <button type="submit">Submit</button>
       </form>
